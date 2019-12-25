@@ -91,3 +91,7 @@ db.sqlite3
 
 # Local python virtual environment
 venv
+
+# Some output data files
+*.csv
+*.json
