@@ -4,7 +4,7 @@ from datetime import date
 import scrapy
 from scrapy.utils.project import get_project_settings
 
-from scraper.items import PhivolcsItem, PhivolcsItemLoader
+from scraper.scraper.items import PhivolcsItem, PhivolcsItemLoader
 
 
 class BulletinSpider(scrapy.Spider):
