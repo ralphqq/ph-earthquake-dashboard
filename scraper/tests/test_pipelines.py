@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.db import transaction
 from django.test import TestCase
 
@@ -29,3 +31,17 @@ class ScraperPipelineTest(TestCase):
                 self.item_pipeline.process_item(item, self.spider)
 
         self.assertEqual(Bulletin.objects.count(), self.total_items - 1)
+
+    @patch('scraper.scraper.pipelines.logging.error')
+    @patch('scraper.scraper.pipelines.Bulletin.save')
+    def test_unexpected_errors_when_processing(self, mock_save, mock_error):
+        # Set ok side effects except for one instance
+        side_effect = [None for i in range(self.total_items)]
+        side_effect[2] = ValueError
+        mock_save.side_effect = side_effect
+
+        for item in self.items:
+            self.item_pipeline.process_item(item, self.spider)
+
+        self.assertEqual(mock_save.call_count, self.total_items)
+        self.assertTrue(mock_error.called)
