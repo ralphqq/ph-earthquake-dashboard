@@ -19,7 +19,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         year = kwargs['year']
 
-        msg = year if year else 'current year'
+        msg = year if year else 'current month'
         self.stdout.write(f'Fetching bulletins from {msg}')
 
         try:

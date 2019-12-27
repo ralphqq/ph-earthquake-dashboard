@@ -18,7 +18,7 @@ class RunScraperCommandTest(SimpleTestCase):
         call_command('runscraper', stdout=self.out)
         self.assertTrue(mock_init.called)
         self.assertTrue(mock_run.called)
-        self.assertIn('current year', self.out.getvalue())
+        self.assertIn('current month', self.out.getvalue())
         with self.assertRaises(AssertionError):
             mock_init.assert_called_with(year=2019)
 
