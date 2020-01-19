@@ -2,6 +2,9 @@ from unittest.mock import patch
 
 from django.db import transaction
 from django.test import TestCase
+from scrapy.crawler import Crawler
+from scrapy.statscollectors import StatsCollector
+from scrapy.utils.project import get_project_settings
 
 from bulletin.models import Bulletin
 from scraper.scraper.pipelines import ScraperPipeline
@@ -13,7 +16,9 @@ class ScraperPipelineTest(TestCase):
 
     def setUp(self):
         self.spider = BulletinSpider(limit=1)
-        self.item_pipeline = ScraperPipeline()
+        crawler = Crawler(BulletinSpider, settings=get_project_settings())
+        stats = StatsCollector(crawler)
+        self.item_pipeline = ScraperPipeline(stats=stats)
         self.total_items = 5
         self.items = create_processed_items(self.total_items)
 
@@ -22,6 +27,10 @@ class ScraperPipelineTest(TestCase):
             self.item_pipeline.process_item(item, self.spider)
 
         self.assertEqual(Bulletin.objects.count(), self.total_items)
+        self.assertEqual(
+            self.item_pipeline.stats.get_value('items_saved_to_db'),
+            self.total_items
+        )
 
     def test_pipeline_discards_duplicate_items(self):
         # Duplicate an item
@@ -31,6 +40,15 @@ class ScraperPipelineTest(TestCase):
                 self.item_pipeline.process_item(item, self.spider)
 
         self.assertEqual(Bulletin.objects.count(), self.total_items - 1)
+        self.assertEqual(
+            self.item_pipeline.stats.get_value('items_saved_to_db'),
+            self.total_items - 1
+        )
+        self.assertEqual(
+            self.item_pipeline.stats.get_value('items_duplicate'),
+            1
+        )
+        
 
     @patch('scraper.scraper.pipelines.logging.error')
     @patch('scraper.scraper.pipelines.Bulletin.save')
