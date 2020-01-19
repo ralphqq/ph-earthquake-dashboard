@@ -3,9 +3,9 @@ An unofficial web app/service that scrapes and parses [Phivolcs DOST Earthquake 
 
 ## Features
 Once completed, this project will include:
-* Scrapy spider that collects current and historic earthquake information from Phivolcs DOST bulletins [to be implemented]
+* Scrapy spider that collects current and historic earthquake information from Phivolcs DOST bulletins
+* Postgres database backend
 * Periodic tasks to run scraping jobs with Celery and Redis [to be implemented]
-* Postgres database backend [to be implemented]
 * API endpoints to access stored earthquake data using Django REST [to be implemented]
 * Service deployed as multi-container Docker app [to be implemented]
 
