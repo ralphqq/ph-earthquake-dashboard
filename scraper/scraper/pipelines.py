@@ -20,7 +20,8 @@ class ScraperPipeline(object):
         try:
             bulletin_update = Bulletin.objects.create(**item)
         except IntegrityError as e:
-            logging.warning(f'Unable to save to database: {e}')
+            url = item.get('url')
+            logging.warning(f'Unable to save bulletin with URL: {url}')
             self.stats.inc_value('items_duplicate')
         except Exception as e:
             logging.error(f'An unexpected error occurred: {e}')

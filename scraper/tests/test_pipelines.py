@@ -32,7 +32,8 @@ class ScraperPipelineTest(TestCase):
             self.total_items
         )
 
-    def test_pipeline_discards_duplicate_items(self):
+    @patch('scraper.scraper.pipelines.logging.warning')
+    def test_pipeline_discards_duplicate_items(self, mock_warning):
         # Duplicate an item
         self.items[1] = self.items[0]
         for item in self.items:
@@ -48,7 +49,10 @@ class ScraperPipelineTest(TestCase):
             self.item_pipeline.stats.get_value('items_duplicate'),
             1
         )
-        
+
+        duplicate_url = self.items[0]['url']
+        warning_message = f'Unable to save bulletin with URL: {duplicate_url}'
+        mock_warning.assert_called_with(warning_message)
 
     @patch('scraper.scraper.pipelines.logging.error')
     @patch('scraper.scraper.pipelines.Bulletin.save')
