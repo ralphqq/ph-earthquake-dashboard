@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+from celery.schedules import crontab   
 from dotenv import load_dotenv
 
 
@@ -138,3 +139,12 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+
+
+# Celery Beat Schedule
+CELERY_BEAT_SCHEDULE = {
+    'every-3-hours': {
+        'task': 'run-scraper',
+        'schedule': crontab(hour='*/3')
+    }
+}
