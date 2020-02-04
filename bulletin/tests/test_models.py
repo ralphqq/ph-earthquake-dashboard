@@ -19,3 +19,10 @@ class BulletinModelTest(TestCase):
                 url=None
             )
             b.save()
+
+    def test_duplicate_bulletins(self):
+        same_url = 'https://www.same-url.com/'
+        b1 = BulletinFactory.create(url=same_url)
+        with self.assertRaises(IntegrityError):
+            b2 = BulletinFactory(url=same_url)
+
