@@ -55,3 +55,49 @@ class BulletinListTest(BulletinAPITestCase):
         self.assertEqual(payload['count'], self.num_of_bulletins)
         self.assertIn('previous', payload)
         self.assertIn('next', payload)
+
+
+class BulletinListPaginationTest(BulletinAPITestCase):
+    """Tests pagination behavior of bulletin API endpoints."""
+
+    @classmethod
+    def setUpTestData(cls):
+        super(BulletinListPaginationTest, cls).setUpTestData()
+
+        # Expected pagination stats
+        cls.page_size = StandardResultsSetPagination().page_size
+        cls.page_range = ceil(cls.num_of_bulletins / cls.page_size)
+        cls.last_page_size = cls.num_of_bulletins % cls.page_size
+
+    def setUp(self):
+        self.response = self.client.get(self.endpoint_url)
+        self.payload = self.response.json()
+
+    def test_first_page(self):
+        results = self.payload['results']
+        self.assertEqual(len(results), self.page_size)
+        self.assertIsNone(self.payload['previous'])
+        self.assertIsNotNone(self.payload['next'])
+
+    def test_subsequent_pages(self):
+        next_page_url = self.payload['next']
+        current_page_num = 2
+
+        while next_page_url:
+            response = self.client.get(next_page_url)
+            payload = response.json()
+            results = payload['results']
+            next_page_url = payload['next']
+
+            self.assert_http_status_code(response)
+            if current_page_num < self.page_range:  # middle pages
+                self.assertEqual(len(results), self.page_size)
+                self.assertIsNotNone(payload['previous'])
+                self.assertIsNotNone(payload['next'])
+                current_page_num += 1
+            elif current_page_num == self.page_range:   # last page
+                self.assertEqual(len(results), self.last_page_size)
+                self.assertIsNotNone(payload['previous'])
+                self.assertIsNone(payload['next'])
+
+        self.assertEqual(current_page_num, self.page_range)
