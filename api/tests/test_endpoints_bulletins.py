@@ -1,3 +1,5 @@
+from math import ceil
+
 from django.shortcuts import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -6,16 +8,12 @@ from api.pagination import StandardResultsSetPagination
 from bulletin.factories import BulletinFactory
 
 
-class BulletinListTest(APITestCase):
-    """Tests GET request on `bulletin-list` endpoint.
-
-    This API call should return a JSON payload that includes 
-    a paginated list of Bulletin objects.
-    """
+class BulletinAPITestCase(APITestCase):
+    """Base class for bulletin API endpoints tests."""
 
     @classmethod
     def setUpTestData(cls):
-        cls.num_of_bulletins = 350
+        cls.num_of_bulletins = 250
         cls.bulletins = BulletinFactory.create_batch(cls.num_of_bulletins)
         cls.endpoint_url = reverse('bulletin-list')
 
@@ -27,6 +25,14 @@ class BulletinListTest(APITestCase):
             405: status.HTTP_405_METHOD_NOT_ALLOWED
         }
         self.assertEqual(response.status_code, codes[code])
+
+
+class BulletinListTest(BulletinAPITestCase):
+    """Tests GET request on `bulletin-list` endpoint.
+
+    This API call should return a JSON payload that includes 
+    a paginated list of Bulletin objects.
+    """
 
     def test_does_not_allow_post_request(self):
         response = self.client.post(self.endpoint_url)
