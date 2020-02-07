@@ -7,4 +7,4 @@ class BulletinSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Bulletin
-        exclude = ['id']
+        exclude = ['id', 'scraped_at', 'updated_at']
