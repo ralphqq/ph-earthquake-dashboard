@@ -14,11 +14,13 @@ class BulletinModelTest(TestCase):
 
     def test_violating_not_null_fields(self):
         with self.assertRaises(IntegrityError):
-            b = BulletinFactory(
-                time_of_quake=None,
-                url=None
-            )
+            b = BulletinFactory(url=None)
             b.save()
+
+    def test_null_time_of_quake_is_allowed(self):
+        b = BulletinFactory(time_of_quake=None)
+        b.save()
+        self.assertEqual(Bulletin.objects.count(), 1)
 
     def test_duplicate_bulletins(self):
         same_url = 'https://www.same-url.com/'

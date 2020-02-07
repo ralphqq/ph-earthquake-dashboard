@@ -5,10 +5,7 @@ import pytz
 
 
 class Bulletin(models.Model):
-    time_of_quake = models.DateTimeField(
-        default=datetime(1900, 1, 1, tzinfo=pytz.UTC),
-        null=False
-    )
+    time_of_quake = models.DateTimeField(null=True)
     url = models.URLField(null=False, unique=True)
     latitude = models.DecimalField(max_digits=5, decimal_places=2)
     longitude = models.DecimalField(max_digits=5, decimal_places=2)
