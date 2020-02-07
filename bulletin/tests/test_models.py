@@ -1,3 +1,6 @@
+from datetime import timedelta
+from unittest.mock import patch
+
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
@@ -48,11 +51,14 @@ class BulletinScrapedAtAndUpdatedAtTest(TestCase):
         orig_scraped_at = self.bulletin.scraped_at
         orig_updated_at = self.bulletin.updated_at
 
-        # Update bulletin
-        self.bulletin.location = 'New location'
-        self.bulletin.save()
-        updated_bulletin = Bulletin.objects.get(pk=bulletin_id)
+        # Update bulletin 5 hours later
+        hours_later = timedelta(hours=5)
+        with patch('bulletin.models.timezone.now') as mock_now:
+            mock_now.return_value = orig_updated_at + hours_later
+            self.bulletin.location = 'New location'
+            self.bulletin.save()
 
+        updated_bulletin = Bulletin.objects.get(pk=bulletin_id)
         self.assertEqual(
             orig_scraped_at,
             updated_bulletin.scraped_at

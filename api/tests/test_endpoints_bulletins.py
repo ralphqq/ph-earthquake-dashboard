@@ -33,6 +33,10 @@ class BulletinListTest(BulletinAPITestCase):
     This API call should return a JSON payload that includes 
     a paginated list of Bulletin objects.
     """
+    def setUp(self):
+        for bulletin in self.bulletins:
+            # Undoes any modifications done in a test
+            bulletin.refresh_from_db()
 
     def test_does_not_allow_post_request(self):
         response = self.client.post(self.endpoint_url)
@@ -55,6 +59,20 @@ class BulletinListTest(BulletinAPITestCase):
         self.assertEqual(payload['count'], self.num_of_bulletins)
         self.assertIn('previous', payload)
         self.assertIn('next', payload)
+
+    def test_results_exclude_items_with_null_time_of_quake(self):
+        num_of_items_with_null_toq = 10
+        for i in range(num_of_items_with_null_toq):
+            # Set `time_of_quake` to None
+            bulletin = self.bulletins[-i]
+            bulletin.time_of_quake = None
+            bulletin.save()
+        response = self.client.get(self.endpoint_url)
+        payload = response.json()
+        self.assertEqual(
+            payload['count'],
+            self.num_of_bulletins - num_of_items_with_null_toq
+        )
 
 
 class BulletinListPaginationTest(BulletinAPITestCase):
